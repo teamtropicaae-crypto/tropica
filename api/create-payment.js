@@ -64,7 +64,15 @@ export default async function handler(req, res) {
     const data = await zRes.json();
     if (!zRes.ok || !data.redirect_url) {
       console.error('Ziina error:', data);
-      return res.status(502).json({ error: 'Could not start payment' });
+      const diagnostic = process.env.ZIINA_TEST_MODE === 'true'
+        ? {
+            provider_status: zRes.status,
+            provider_error: String(
+              data?.error?.message || data?.message || data?.detail || data?.error || 'Unknown Ziina error'
+            ).slice(0, 160)
+          }
+        : {};
+      return res.status(502).json({ error: 'Could not start payment', ...diagnostic });
     }
 
     // Order details are logged here so you can match the payment to a shipment.
