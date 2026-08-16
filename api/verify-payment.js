@@ -6,7 +6,11 @@ const PAYMENT_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const key = process.env.ZIINA_API_KEY;
+  const key = (process.env.ZIINA_API_KEY || '')
+    .trim()
+    .replace(/^Bearer\s+/i, '')
+    .replace(/^['\"]|['\"]$/g, '')
+    .trim();
   if (!key) return res.status(500).json({ error: 'Missing ZIINA_API_KEY' });
 
   const id = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
