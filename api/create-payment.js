@@ -4,6 +4,11 @@
 const PRICES = { adult: 185, kids: 165 };   // server-side source of truth
 const DELIVERY_FEE = 30;
 const FREE_OVER = 0;                        // 0 = always charge delivery
+const VAT_RATE = 0.05;
+
+function roundMoney(value) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -31,7 +36,8 @@ export default async function handler(req, res) {
       subtotal += unit * qty;
     }
     const delivery = (FREE_OVER > 0 && subtotal >= FREE_OVER) ? 0 : DELIVERY_FEE;
-    const total = subtotal + delivery;
+    const vat = roundMoney((subtotal + delivery) * VAT_RATE);
+    const total = roundMoney(subtotal + delivery + vat);
 
     // Ziina expects the amount in fils: 185 AED -> 18500
     const amountFils = Math.round(total * 100);
@@ -81,7 +87,7 @@ export default async function handler(req, res) {
 
     // Order details are logged here so you can match the payment to a shipment.
     console.log('ORDER', JSON.stringify({
-      payment_intent: data.id, total, delivery, customer, items
+      payment_intent: data.id, subtotal, delivery, vat, total, customer, items
     }));
 
     return res.status(200).json({ redirect_url: data.redirect_url, id: data.id });

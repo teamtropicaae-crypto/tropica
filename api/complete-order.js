@@ -1,10 +1,11 @@
-// Sends a paid order to the private Google Apps Script order log.
+// Sends a paid order to a private standalone Google Apps Script email endpoint.
 // The Ziina payment is re-verified here before any customer details are forwarded.
 
 const PAYMENT_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 const PRICES = { adult: 185, kids: 165 };
 const DELIVERY_FEE = 30;
 const FREE_OVER = 0;
+const VAT_RATE = 0.05;
 const PRODUCTS = {
   Regatta: 'adult',
   'Coral Reef': 'adult',
@@ -30,6 +31,10 @@ function cleanText(value, maxLength) {
     .slice(0, maxLength);
 }
 
+function roundMoney(value) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
 function appsScriptUrl(value) {
   try {
     const url = new URL(value);
@@ -45,9 +50,9 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const key = envValue('ZIINA_API_KEY');
-  const orderLogUrl = appsScriptUrl(envValue('ORDER_LOG_URL'));
+  const orderEmailUrl = appsScriptUrl(envValue('ORDER_EMAIL_URL') || envValue('ORDER_LOG_URL'));
   if (!key) return res.status(500).json({ error: 'Missing ZIINA_API_KEY' });
-  if (!orderLogUrl) return res.status(503).json({ error: 'Order email is not configured' });
+  if (!orderEmailUrl) return res.status(503).json({ error: 'Order email is not configured' });
 
   const { payment_intent: paymentId, order = {} } = req.body || {};
   if (!paymentId || !PAYMENT_ID_PATTERN.test(paymentId)) {
@@ -85,7 +90,8 @@ export default async function handler(req, res) {
   }
 
   const delivery = FREE_OVER > 0 && subtotal >= FREE_OVER ? 0 : DELIVERY_FEE;
-  const total = subtotal + delivery;
+  const vat = roundMoney((subtotal + delivery) * VAT_RATE);
+  const total = roundMoney(subtotal + delivery + vat);
 
   try {
     const ziinaResponse = await fetch(
@@ -99,7 +105,7 @@ export default async function handler(req, res) {
       return res.status(409).json({ error: 'Payment amount does not match order' });
     }
 
-    const logResponse = await fetch(orderLogUrl, {
+    const emailResponse = await fetch(orderEmailUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
@@ -110,13 +116,14 @@ export default async function handler(req, res) {
         items,
         subtotal,
         delivery,
+        vat,
         total
       }),
       redirect: 'follow'
     });
-    const logResult = await logResponse.text();
-    if (!logResponse.ok || !logResult.trim().startsWith('ok')) {
-      console.error('Order log error:', logResponse.status, logResult.slice(0, 200));
+    const emailResult = await emailResponse.text();
+    if (!emailResponse.ok || !emailResult.trim().startsWith('ok')) {
+      console.error('Order email error:', emailResponse.status, emailResult.slice(0, 200));
       return res.status(502).json({ error: 'Could not send order notification' });
     }
 
