@@ -32,7 +32,13 @@ export default async function handler(req, res) {
     // Ziina expects the amount in fils: 185 AED -> 18500
     const amountFils = Math.round(total * 100);
 
-    const origin = `https://${req.headers.host}`;
+    // SITE_URL should be the production Vercel URL. Falling back to the
+    // forwarded host keeps preview deployments usable during testing.
+    const forwardedHost = req.headers['x-forwarded-host'] || req.headers.host;
+    const forwardedProto = req.headers['x-forwarded-proto'] || 'https';
+    const origin = process.env.SITE_URL
+      ? new URL(process.env.SITE_URL).origin
+      : `${forwardedProto}://${forwardedHost}`;
     const summary = items
       .map(i => `${i.name} (${i.size}) x${i.qty}`)
       .join(', ')
@@ -48,8 +54,9 @@ export default async function handler(req, res) {
         amount: amountFils,
         currency_code: 'AED',
         message: `Tropica order — ${summary}`,
-        success_url: `${origin}/?paid=1`,
+        success_url: `${origin}/?payment_intent={PAYMENT_INTENT_ID}`,
         cancel_url: `${origin}/?cancelled=1`,
+        failure_url: `${origin}/?payment_failed=1`,
         test: process.env.ZIINA_TEST_MODE === 'true'
       })
     });

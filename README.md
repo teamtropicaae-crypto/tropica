@@ -2,8 +2,10 @@
 
 Files:
 
-- `index.html` — the whole website (images built in, nothing else to load)
+- `index.html` — the complete storefront markup, styles, and interactions.
+- `assets/` — optimized, cacheable product and campaign photography.
 - `api/create-payment.js` — creates the Ziina payment. Only runs on Vercel.
+- `api/verify-payment.js` — checks the payment status with Ziina before confirming an order.
 - `order-log.gs` — optional: logs every order into a Google Sheet
 
 Right now the site is in **WhatsApp mode**: orders arrive in your WhatsApp with the
@@ -33,6 +35,7 @@ A real domain (tropica.ae) can be attached later: Vercel > Settings > Domains.
    |---|---|
    | `ZIINA_API_KEY` | the key from Ziina |
    | `ZIINA_TEST_MODE` | `true` while testing, `false` when live |
+   | `SITE_URL` | the production Vercel URL, for example `https://tropica.vercel.app` |
 
    Never put the key in `index.html` — anyone can read that file.
 
@@ -42,11 +45,16 @@ A real domain (tropica.ae) can be attached later: Vercel > Settings > Domains.
    const PAY_MODE = "whatsapp";   ->   const PAY_MODE = "ziina";
    ```
 
-3. Redeploy. Test with `ZIINA_TEST_MODE = true` — any card number works and no
-   money moves. When the confirmation screen appears, set it to `false` and do one
-   small real order to confirm.
+3. Redeploy. Test with `ZIINA_TEST_MODE = true` using one of Ziina's documented
+   test cards. No money moves in test mode. The website verifies the returned
+   Payment Intent with Ziina before displaying the order-confirmed message.
+4. When the entire flow works, set `ZIINA_TEST_MODE` to `false`, redeploy, and do
+   one small real order to confirm funds arrive in the correct Ziina Business account.
 
 If a payment ever fails, the checkout still offers WhatsApp as a fallback.
+
+GitHub Pages can host the WhatsApp-only website, but it cannot run the `/api`
+server functions. Ziina checkout must use the Vercel URL (or another serverless host).
 
 ---
 
