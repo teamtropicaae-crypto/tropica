@@ -8,7 +8,11 @@ const FREE_OVER = 0;                        // 0 = always charge delivery
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const KEY = process.env.ZIINA_API_KEY;
+  const KEY = (process.env.ZIINA_API_KEY || '')
+    .trim()
+    .replace(/^Bearer\s+/i, '')
+    .replace(/^['\"]|['\"]$/g, '')
+    .trim();
   if (!KEY) return res.status(500).json({ error: 'Missing ZIINA_API_KEY' });
 
   try {
