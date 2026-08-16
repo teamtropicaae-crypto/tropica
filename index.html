@@ -441,6 +441,7 @@ const IMG = {regatta:"assets/regatta.jpg",coral:"assets/coral.jpg",aqua:"assets/
 const WHATSAPP     = "971566849595";  // WhatsApp number, intl format, no +
 const DELIVERY_FEE = 30;              // AED, flat
 const FREE_OVER    = 0;               // set e.g. 500 for free delivery over 500 AED; 0 = always charge
+const VAT_RATE     = 0.05;             // UAE VAT added at checkout
 /* PAY_MODE: "whatsapp" = order via WhatsApp (no key needed)
              "ziina"    = pay on site with card / Apple Pay / Google Pay (needs API key on host) */
 const PAY_MODE     = "ziina";
@@ -569,7 +570,14 @@ function updateBadge(){
   const b=document.getElementById('badge');
   b.textContent=n; b.classList.toggle('show', n>0);
 }
-function money(n){ return n.toLocaleString('en-AE'); }
+function roundMoney(n){ return Math.round((Number(n)+Number.EPSILON)*100)/100; }
+function money(n){
+  const value=Number(n);
+  return value.toLocaleString('en-AE',{
+    minimumFractionDigits:Number.isInteger(value)?0:2,
+    maximumFractionDigits:2
+  });
+}
 function renderCart(){
   const items=document.getElementById('cartItems'), foot=document.getElementById('cartFooter');
   if(!cart.length){
@@ -599,6 +607,7 @@ function renderCart(){
       <div class="sumrow"><span>Subtotal</span><span>${money(t.subtotal)} AED</span></div>
       <div class="sumrow ${t.delivery===0?'free':''}"><span>Delivery${t.delivery===0?' · free':''}</span>
         <span>${t.delivery===0?'0':money(t.delivery)} AED</span></div>
+      <div class="sumrow"><span>VAT (5%)</span><span>${money(t.vat)} AED</span></div>
     </div>
     <div class="totals"><span>Total</span><span>${money(t.total)} AED</span></div>
     <button class="checkout" id="checkoutBtn" style="background:var(--ink);color:#fff">
@@ -611,7 +620,8 @@ function renderCart(){
 function totals(){
   const subtotal=cart.reduce((s,i)=>s+i.price*i.qty,0);
   const delivery=(FREE_OVER>0 && subtotal>=FREE_OVER)?0:DELIVERY_FEE;
-  return {subtotal,delivery,total:subtotal+delivery};
+  const vat=roundMoney((subtotal+delivery)*VAT_RATE);
+  return {subtotal,delivery,vat,total:roundMoney(subtotal+delivery+vat)};
 }
 
 /* ---- checkout: customer details ---- */
@@ -631,6 +641,7 @@ function showDetails(){
     <div style="margin-top:18px">
       <div class="sumrow"><span>Subtotal</span><span>${money(t.subtotal)} AED</span></div>
       <div class="sumrow ${t.delivery===0?'free':''}"><span>Delivery${t.delivery===0?' · free':''}</span><span>${t.delivery===0?'0':money(t.delivery)} AED</span></div>
+      <div class="sumrow"><span>VAT (5%)</span><span>${money(t.vat)} AED</span></div>
     </div>
     <div class="totals"><span>Total</span><span>${money(t.total)} AED</span></div>
     ${PAY_MODE==="ziina" ? `
@@ -663,7 +674,7 @@ function readForm(){
 function orderPayload(f){
   const t=totals();
   return {customer:f, items:cart.map(i=>({name:i.name,kind:i.kind,size:i.size,qty:i.qty,price:i.price})),
-          subtotal:t.subtotal, delivery:t.delivery, total:t.total,
+          subtotal:t.subtotal, delivery:t.delivery, vat:t.vat, total:t.total,
           placed_at:new Date().toISOString()};
 }
 async function notifyPaidOrder(paymentIntent,payload){
@@ -705,6 +716,7 @@ ${lines.join("\n")}
 
 Subtotal: ${money(p.subtotal)} AED
 Delivery: ${p.delivery===0?'Free':money(p.delivery)+' AED'}
+VAT (5%): ${money(p.vat)} AED
 Total: ${money(p.total)} AED
 
 Name: ${p.customer.name}

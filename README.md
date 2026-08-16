@@ -6,11 +6,14 @@ Files:
 - `assets/` — optimized, cacheable product and campaign photography.
 - `api/create-payment.js` — creates the Ziina payment. Only runs on Vercel.
 - `api/verify-payment.js` — checks the payment status with Ziina before confirming an order.
-- `api/complete-order.js` — re-verifies a paid order and forwards it to the private seller log.
-- `order-log.gs` — logs verified paid orders into Google Sheets and emails the seller.
+- `api/complete-order.js` — re-verifies a paid order and forwards it to the seller email service.
+- `order-email.gs` — standalone Google Apps Script that emails the seller; no Sheet required.
+- `order-log.gs` — optional alternative that also saves orders into Google Sheets.
 
 The site is in **Ziina mode**. Ziina handles the payment page, while Vercel
 re-verifies successful payments before any order notification is sent.
+Checkout adds 5% VAT to the merchandise subtotal and delivery charge. Only enable
+this if the seller is VAT-registered and legally allowed to collect UAE VAT.
 
 ---
 
@@ -58,20 +61,22 @@ server functions. Ziina checkout must use the Vercel URL (or another serverless 
 
 ---
 
-## 3. Email every paid order and save it to Google Sheets
+## 3. Email every paid order (easiest setup — no Google Sheet)
 
-1. Make a new, blank Google Sheet.
-2. **Extensions > Apps Script**, delete what's there, paste in `order-log.gs`.
-3. The script already emails every order to teamtropicaae@gmail.com. Make sure you are signed in to Google as that account (or change `NOTIFY_EMAIL` at the top).
-4. **Deploy > New deployment > Web app** — Execute as **Me**, Access **Anyone**. Copy the `/exec` URL.
-5. In Vercel, open **Settings > Environment Variables** and add `ORDER_LOG_URL`
+1. Sign in to the seller's Google account and open `https://script.new`.
+2. Delete the sample code and paste in `order-email.gs`, then name the project `Tropica order emails`.
+3. **Deploy > New deployment > Web app** — Execute as **Me**, Access **Anyone**. Approve the Google authorization request and copy the `/exec` URL.
+4. In Vercel, open **Settings > Environment Variables** and add `ORDER_EMAIL_URL`
    with that `/exec` URL for **Production** and **Preview**.
-6. Save it and redeploy the latest Production deployment.
+5. Save it and redeploy the latest Production deployment.
 
 Only orders that the server confirms as `completed` with Ziina are forwarded.
-The payment amount must also match the server-calculated order total. The Sheet
-deduplicates payment IDs, stores the items and delivery details, and sends a
-`PAID Tropica order` email.
+The payment amount must also match the server-calculated order total. The script
+deduplicates payment IDs and sends a `PAID Tropica order` email with the products,
+sizes, customer, delivery address, VAT, and total.
+
+If you also want a permanent spreadsheet later, use `order-log.gs` instead and
+save its web-app URL under the same `ORDER_EMAIL_URL` variable.
 
 ---
 
@@ -82,6 +87,7 @@ All near the bottom of `index.html`:
 - `WHATSAPP` — your number, international format, no `+`
 - `DELIVERY_FEE` — currently `30`
 - `FREE_OVER` — set to e.g. `500` for free delivery above 500 AED (`0` = always charge)
+- `VAT_RATE` — currently `0.05` (5% VAT, added to products and delivery)
 - `PRODUCTS` — names, descriptions, prices, adult/kids
 
 Prices are also repeated in `api/create-payment.js` so nobody can change the total in

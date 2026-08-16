@@ -5,7 +5,7 @@
  * 2. Paste this file into the editor.
  * 3. Deploy > New deployment > Web app.
  *    Execute as: Me. Who has access: Anyone.
- * 4. Put the resulting /exec URL in Vercel as ORDER_LOG_URL.
+ * 4. Put the resulting /exec URL in Vercel as ORDER_EMAIL_URL.
  *
  * The Vercel function verifies the Ziina payment before sending an order here.
  */
@@ -35,9 +35,9 @@ function doPost(e) {
     if (sheet.getLastRow() === 0) {
       sheet.appendRow([
         'Payment ID', 'Status', 'Date', 'Name', 'Phone', 'Emirate', 'Address',
-        'Items', 'Subtotal', 'Delivery', 'Total', 'Note'
+        'Items', 'Subtotal', 'Delivery', 'VAT (5%)', 'Total', 'Note'
       ]);
-      sheet.getRange(1, 1, 1, 12).setFontWeight('bold');
+      sheet.getRange(1, 1, 1, 13).setFontWeight('bold');
       sheet.setFrozenRows(1);
     }
 
@@ -69,6 +69,7 @@ function doPost(e) {
       items,
       Number(order.subtotal || 0),
       Number(order.delivery || 0),
+      Number(order.vat || 0),
       Number(order.total || 0),
       safeCell(customer.note)
     ]);
@@ -88,6 +89,7 @@ function doPost(e) {
           (customer.note ? '\nNote: ' + safeCell(customer.note) : '') +
           '\n\nSubtotal: ' + Number(order.subtotal || 0) + ' AED' +
           '\nDelivery: ' + Number(order.delivery || 0) + ' AED' +
+          '\nVAT (5%): ' + Number(order.vat || 0) + ' AED' +
           '\nTotal: ' + Number(order.total || 0) + ' AED'
       });
     }
