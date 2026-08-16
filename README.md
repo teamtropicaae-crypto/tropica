@@ -6,11 +6,11 @@ Files:
 - `assets/` — optimized, cacheable product and campaign photography.
 - `api/create-payment.js` — creates the Ziina payment. Only runs on Vercel.
 - `api/verify-payment.js` — checks the payment status with Ziina before confirming an order.
-- `order-log.gs` — optional: logs every order into a Google Sheet
+- `api/complete-order.js` — re-verifies a paid order and forwards it to the private seller log.
+- `order-log.gs` — logs verified paid orders into Google Sheets and emails the seller.
 
-Right now the site is in **WhatsApp mode**: orders arrive in your WhatsApp with the
-customer's name, phone, emirate, address and the full total including 30 AED delivery.
-Nothing is needed from Ziina for this to work.
+The site is in **Ziina mode**. Ziina handles the payment page, while Vercel
+re-verifies successful payments before any order notification is sent.
 
 ---
 
@@ -58,15 +58,20 @@ server functions. Ziina checkout must use the Vercel URL (or another serverless 
 
 ---
 
-## 3. Optional: log orders to a Google Sheet
+## 3. Email every paid order and save it to Google Sheets
 
-1. Make a new Google Sheet.
+1. Make a new, blank Google Sheet.
 2. **Extensions > Apps Script**, delete what's there, paste in `order-log.gs`.
 3. The script already emails every order to teamtropicaae@gmail.com. Make sure you are signed in to Google as that account (or change `NOTIFY_EMAIL` at the top).
 4. **Deploy > New deployment > Web app** — Execute as **Me**, Access **Anyone**. Copy the `/exec` URL.
-5. Paste that URL into `ORDER_LOG_URL` in `index.html`.
+5. In Vercel, open **Settings > Environment Variables** and add `ORDER_LOG_URL`
+   with that `/exec` URL for **Production** and **Preview**.
+6. Save it and redeploy the latest Production deployment.
 
-Every order then lands in the sheet with items, sizes, totals and the delivery address.
+Only orders that the server confirms as `completed` with Ziina are forwarded.
+The payment amount must also match the server-calculated order total. The Sheet
+deduplicates payment IDs, stores the items and delivery details, and sends a
+`PAID Tropica order` email.
 
 ---
 

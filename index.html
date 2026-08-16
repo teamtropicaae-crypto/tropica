@@ -9,14 +9,15 @@
 <meta property="og:title" content="Tropica — swim wild · live free">
 <meta property="og:description" content="Quick-dry swim shorts in bold prints. Adults & kids. Delivered across the UAE.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://teamtropicaae-crypto.github.io/tropica/assets/og.png">
+<meta property="og:image" content="https://tropica-azure.vercel.app/assets/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Tropica — swim wild · live free">
 <meta name="twitter:description" content="Quick-dry swim shorts in bold prints. Adults & kids. Delivered across the UAE.">
-<meta name="twitter:image" content="https://teamtropicaae-crypto.github.io/tropica/assets/og.png">
-<link rel="preload" as="image" href="assets/hero.jpg" fetchpriority="high">
+<meta name="twitter:image" content="https://tropica-azure.vercel.app/assets/og.png">
+<link rel="preload" as="image" href="assets/hero-wide.jpg" media="(min-width:760px)" fetchpriority="high">
+<link rel="preload" as="image" href="assets/hero.jpg" media="(max-width:759px)" fetchpriority="high">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f3ead9'/%3E%3Cg fill='none' stroke='%231f52a8' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M30 58 C31 48 30 40 33 31'/%3E%3Cpath d='M33 30 C26 25 18 24 12 27'/%3E%3Cpath d='M33 30 C33 22 32 14 30 9'/%3E%3Cpath d='M33 30 C39 23 46 20 53 21'/%3E%3Cpath d='M33 30 C40 26 48 26 55 31'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,17 +53,24 @@ img{display:block;max-width:100%}
 @keyframes palmpop{0%{opacity:0;transform:translateY(14px) scale(.6) rotate(-6deg)}
   100%{opacity:1;transform:none}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@keyframes heroReveal{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+@keyframes heroReveal{from{opacity:0;transform:scale(1.045)}to{opacity:1;transform:scale(1)}}
+@keyframes curtainAway{0%{transform:scaleX(1)}100%{transform:scaleX(0)}}
+@keyframes cue{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(7px);opacity:1}}
 
 /* ---------- top bar ---------- */
-header{position:sticky;top:0;z-index:90;backdrop-filter:saturate(1.3) blur(10px);
-  background:rgba(243,234,217,.82);border-bottom:1px solid var(--line)}
-.bar{display:flex;align-items:center;justify-content:space-between;height:58px}
+header{position:fixed;top:0;left:0;right:0;z-index:90;color:#fff;
+  background:linear-gradient(180deg,rgba(6,25,48,.44),transparent);border-bottom:1px solid transparent;
+  transition:background .35s,color .35s,border-color .35s,backdrop-filter .35s}
+header.scrolled{color:var(--ink);backdrop-filter:saturate(1.3) blur(12px);
+  background:rgba(243,234,217,.88);border-bottom-color:var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:64px}
 .brand{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:.16em;font-size:15px}
 .brand svg{width:20px;height:20px}
-.cart-btn{position:relative;display:flex;align-items:center;gap:7px;border:1px solid var(--ink);
-  background:transparent;color:var(--ink);font:inherit;font-weight:700;font-size:13px;
+.brand svg{stroke:currentColor}
+.cart-btn{position:relative;display:flex;align-items:center;gap:7px;border:1px solid currentColor;
+  background:rgba(255,255,255,.08);color:inherit;font:inherit;font-weight:700;font-size:13px;
   padding:9px 14px;border-radius:999px;cursor:pointer}
+header.scrolled .cart-btn{background:transparent}
 .cart-btn:active{transform:scale(.96)}
 .badge{position:absolute;top:-7px;right:-7px;min-width:19px;height:19px;border-radius:999px;
   background:var(--coral);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;
@@ -70,15 +78,19 @@ header{position:sticky;top:0;z-index:90;backdrop-filter:saturate(1.3) blur(10px)
 .badge.show{transform:scale(1)}
 
 /* ---------- hero ---------- */
-.hero{position:relative;width:min(1280px,calc(100% - 32px));margin:16px auto 0}
-.hero-media{position:relative;border-radius:28px;overflow:hidden;height:clamp(560px,72vh,760px);
-  background:#6fa9b2;box-shadow:0 28px 80px -42px rgba(15,42,77,.55);animation:heroReveal .7s ease-out both}
-.hero-media img{width:100%;height:100%;object-fit:cover;object-position:center 48%;transform:scale(1.015);animation:heroReveal 1s ease-out both}
+.hero{position:relative;width:100%;margin:0}
+.hero-media{position:relative;overflow:hidden;height:100svh;min-height:650px;
+  background:linear-gradient(90deg,#0c2a50 0%,#15375f 46%,#d6d5ce 100%)}
+.hero-media picture{position:absolute;inset:0}
+.hero-media img{width:100%;height:100%;object-fit:cover;object-position:center;animation:heroReveal 1.45s cubic-bezier(.2,.7,.2,1) both}
+.hero-media::before{content:"";position:absolute;inset:0;z-index:4;background:var(--ink);
+  transform-origin:right;animation:curtainAway 1.05s cubic-bezier(.77,0,.18,1) .08s both;pointer-events:none}
 .hero-media::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,rgba(6,32,58,.67) 0%,rgba(6,32,58,.26) 45%,rgba(6,32,58,.02) 75%),
-             linear-gradient(180deg,rgba(6,32,58,.02) 45%,rgba(6,32,58,.35) 100%)}
+  background:linear-gradient(180deg,rgba(6,32,58,.08) 55%,rgba(6,32,58,.48) 100%);pointer-events:none}
+.returning .hero-media::before{display:none}
+.returning .hero-media img{animation:none}
 .hero-copy{position:absolute;left:clamp(26px,6vw,82px);bottom:clamp(30px,7vh,72px);z-index:2;color:#fff;padding:0;
-  max-width:650px;animation:fadeUp .75s ease .18s both}
+  max-width:650px;display:none;animation:fadeUp .75s ease .38s both}
 .hero-copy .eyebrow{color:#d9f3f6}
 .hero-h1{font-weight:500;font-size:clamp(52px,6.4vw,88px);line-height:.96;letter-spacing:-.025em;margin:.28em 0 .26em}
 .hero-h1 em{font-style:italic;color:#ffe6b0}
@@ -88,6 +100,13 @@ header{position:sticky;top:0;z-index:90;backdrop-filter:saturate(1.3) blur(10px)
   border:none;cursor:pointer;box-shadow:var(--shadow)}
 .cta:active{transform:scale(.97)}
 .cta svg{width:15px;height:15px}
+.hero-desktop-actions{position:absolute;left:clamp(54px,6.8vw,118px);bottom:clamp(48px,8vh,82px);z-index:2;
+  display:flex;align-items:center;gap:18px;color:#fff;animation:fadeUp .75s ease .8s both}
+.hero-desktop-actions .cta{margin:0}
+.hero-note{font-size:11px;line-height:1.35;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.8)}
+.scroll-cue{position:absolute;right:32px;bottom:30px;z-index:2;color:#fff;font-size:9px;font-weight:800;
+  letter-spacing:.24em;writing-mode:vertical-rl;display:flex;align-items:center;gap:9px;opacity:.8}
+.scroll-cue i{display:block;width:1px;height:30px;background:rgba(255,255,255,.75);animation:cue 1.8s ease-in-out infinite}
 
 /* ---------- marquee ---------- */
 .marquee{overflow:hidden;border-block:1px solid var(--line);margin-top:28px;padding:11px 0;
@@ -106,21 +125,26 @@ header{position:sticky;top:0;z-index:90;backdrop-filter:saturate(1.3) blur(10px)
 .chip{border:1px solid var(--line);background:var(--shell);color:var(--ink);font:inherit;font-weight:700;
   font-size:13px;padding:8px 15px;border-radius:999px;cursor:pointer;transition:.2s}
 .chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,24px)}
 .card{background:var(--shell);border-radius:var(--r);overflow:hidden;border:1px solid var(--line);
-  cursor:pointer;opacity:0;transform:translateY(22px);transition:transform .6s cubic-bezier(.22,1,.36,1),opacity .6s,box-shadow .25s}
+  cursor:pointer;opacity:0;transform:translateY(22px);display:flex;flex-direction:column;
+  transition:transform .6s cubic-bezier(.22,1,.36,1),opacity .6s,box-shadow .25s}
 .card.in{opacity:1;transform:none}
+.card:hover{box-shadow:0 24px 48px -32px rgba(15,42,77,.55)}
 .card:active{transform:scale(.98)}
-.card-img{position:relative;aspect-ratio:4/5;overflow:hidden;background:#e7ecef}
-.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
-.card:hover .card-img img{transform:scale(1.04)}
+.card-img{position:relative;aspect-ratio:4/5;overflow:hidden;
+  background:radial-gradient(circle at 50% 35%,#fff 0,#f3f0e9 50%,#e7e3db 100%)}
+.product-photo{width:100%;height:100%;box-sizing:border-box;object-fit:var(--fit,cover);
+  object-position:var(--position,center);padding:var(--pad,0);transform:rotate(var(--rotate,0deg)) scale(var(--scale,1));
+  transition:transform .65s cubic-bezier(.22,1,.36,1)}
+.card:hover .product-photo{transform:rotate(var(--rotate,0deg)) scale(calc(var(--scale,1) + .035))}
 .tag{position:absolute;top:10px;left:10px;background:rgba(251,246,236,.92);color:var(--ink);
   font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 9px;border-radius:999px}
 .tag.kids{color:var(--sea-deep)}
-.card-body{padding:12px 13px 15px}
+.card-body{padding:14px 14px 16px;display:flex;flex-direction:column;flex:1}
 .card-body h3{font-family:"Fraunces",serif;font-weight:500;font-size:18px;line-height:1.1}
 .card-body p{font-size:12px;color:rgba(15,42,77,.6);margin:3px 0 9px;min-height:2.4em}
-.price{font-weight:800;font-size:15px}
+.price{font-weight:800;font-size:15px;margin-top:auto}
 .price small{font-weight:600;font-size:11px;color:rgba(15,42,77,.55)}
 
 /* ---------- kids band ---------- */
@@ -166,8 +190,8 @@ footer .palm svg{width:100%;height:100%}
   background:var(--shell);color:var(--ink);font-size:18px;cursor:pointer;display:grid;place-items:center}
 
 /* product sheet */
-.ps-img{border-radius:16px;overflow:hidden;aspect-ratio:4/4.4;margin:6px 0 16px}
-.ps-img img{width:100%;height:100%;object-fit:cover}
+.ps-img{border-radius:16px;overflow:hidden;aspect-ratio:var(--sheet-ratio,4/4.4);margin:6px 0 16px;
+  background:radial-gradient(circle at 50% 35%,#fff 0,#f3f0e9 55%,#e7e3db 100%)}
 .ps-name{font-family:"Fraunces",serif;font-weight:500;font-size:26px}
 .ps-desc{color:rgba(15,42,77,.65);font-size:14px;margin:4px 0 2px}
 .ps-price{font-weight:800;font-size:20px;margin:12px 0 4px}
@@ -189,7 +213,7 @@ footer .palm svg{width:100%;height:100%}
 /* cart sheet */
 .cart-h{font-family:"Fraunces",serif;font-weight:500;font-size:24px;margin:2px 0 14px}
 .li{display:flex;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
-.li img{width:64px;height:76px;object-fit:cover;border-radius:10px;flex:none}
+.li img{width:64px;height:76px;border-radius:10px;flex:none;background:#f3f0e9}
 .li-main{flex:1;min-width:0}
 .li-main h4{font-family:"Fraunces",serif;font-weight:500;font-size:16px}
 .li-main .meta{font-size:12px;color:rgba(15,42,77,.6);margin-top:2px}
@@ -238,13 +262,20 @@ footer .palm svg{width:100%;height:100%}
 .done-wrap h3{font-family:"Fraunces",serif;font-weight:500;font-size:26px;margin-bottom:8px}
 .done-wrap p{font-size:14px;color:rgba(15,42,77,.7);max-width:24em;margin:0 auto}
 
+@media (min-width:760px){
+  .hero-media img{object-fit:contain}
+}
+
 @media (max-width:759px){
   .wrap{padding-inline:18px}
-  .hero{width:calc(100% - 16px);margin-top:8px}
-  .hero-media{height:min(76svh,680px);min-height:560px;border-radius:22px}
-  .hero-media img{object-position:47% center}
-  .hero-media::after{background:linear-gradient(180deg,rgba(6,32,58,.03) 25%,rgba(6,32,58,.72) 100%)}
+  .bar{height:58px}
+  .hero-media{height:100svh;min-height:620px}
+  .hero-media img{object-position:56% center}
+  .hero-media::after{background:linear-gradient(180deg,rgba(6,32,58,.07) 20%,rgba(6,32,58,.8) 100%)}
   .hero-copy{left:0;right:0;bottom:24px;padding:0 20px;max-width:none}
+  .hero-copy{display:block}
+  .hero-desktop-actions{display:none}
+  .scroll-cue{display:none}
   .hero-h1{font-size:clamp(39px,12vw,54px);line-height:1}
   .hero-sub{font-size:14px;max-width:24em}
   .cta{padding:13px 19px}
@@ -258,12 +289,19 @@ footer .palm svg{width:100%;height:100%}
 @media (prefers-reduced-motion:reduce){
   .card{opacity:1;transform:none}
   .marquee-track{animation:none}
-  .hero-media,.hero-media img,.hero-copy{animation:none}
+  .hero-media::before{display:none}
+  .hero-media,.hero-media img,.hero-copy,.hero-desktop-actions{animation:none}
   *{scroll-behavior:auto}
 }
 </style>
 </head>
 <body>
+<script>
+try{
+  if(sessionStorage.getItem('tropicaIntroSeen')) document.body.classList.add('returning');
+  else sessionStorage.setItem('tropicaIntroSeen','1');
+}catch(_){}
+</script>
 
 <!-- HEADER -->
 <header>
@@ -278,7 +316,10 @@ footer .palm svg{width:100%;height:100%}
 <!-- HERO -->
 <section class="hero">
   <div class="hero-media">
-    <img src="assets/hero.jpg" width="1100" height="825" fetchpriority="high" decoding="async" alt="Tropica swim shorts on the beach">
+    <picture>
+      <source media="(max-width:759px)" srcset="assets/hero.jpg">
+      <img src="assets/hero-wide.jpg" width="1731" height="909" fetchpriority="high" decoding="async" alt="Tropica swim shorts on a clear Gulf beach">
+    </picture>
     <div class="hero-copy">
       <div class="eyebrow">Abu Dhabi · sun sea sand</div>
       <h1 class="hero-h1 serif">Made for sun,<br>surf <em>&amp; style.</em></h1>
@@ -288,6 +329,11 @@ footer .palm svg{width:100%;height:100%}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
     </div>
+    <div class="hero-desktop-actions">
+      <button class="cta" onclick="document.getElementById('shop').scrollIntoView()">Explore the collection&nbsp; →</button>
+      <div class="hero-note">Designed in Abu Dhabi<br>Made for Gulf summers</div>
+    </div>
+    <div class="scroll-cue" aria-hidden="true">Scroll <i></i></div>
   </div>
 </section>
 
@@ -318,7 +364,7 @@ footer .palm svg{width:100%;height:100%}
 <!-- KIDS BAND -->
 <section class="wrap">
   <div class="band">
-    <img src="assets/duo.jpg" width="880" height="1173" loading="lazy" decoding="async" alt="Kids in Tropica shorts">
+    <img src="assets/turtle.jpg" width="760" height="1013" loading="lazy" decoding="async" alt="Tropica Sea Turtle kids shorts">
     <div class="band-copy">
       <div class="eyebrow">For your minis</div>
       <h2>Little legends,<br>big summers.</h2>
@@ -383,6 +429,11 @@ footer .palm svg{width:100%;height:100%}
 </div>
 
 <script>
+const siteHeader=document.querySelector('header');
+function syncHeader(){ siteHeader.classList.toggle('scrolled',window.scrollY>36); }
+syncHeader();
+addEventListener('scroll',syncHeader,{passive:true});
+
 const IMG = {regatta:"assets/regatta.jpg",coral:"assets/coral.jpg",aqua:"assets/aqua.jpg",
   candy:"assets/candy.jpg",turtle:"assets/turtle.jpg"};
 
@@ -394,7 +445,6 @@ const FREE_OVER    = 0;               // set e.g. 500 for free delivery over 500
              "ziina"    = pay on site with card / Apple Pay / Google Pay (needs API key on host) */
 const PAY_MODE     = "ziina";
 const PAY_ENDPOINT = "/api/create-payment";  // serverless function (Vercel)
-const ORDER_LOG_URL = "";                    // optional Google Sheet webhook URL
 
 const EMIRATES = ["Abu Dhabi","Dubai","Sharjah","Ajman","Umm Al Quwain","Ras Al Khaimah","Fujairah"];
 
@@ -402,13 +452,23 @@ const ADULT_SIZES = ["S","M","L","XXL"];
 const KIDS_SIZES  = ["1–2y","3–4y","5–6y","7–8y","9–10y"];
 
 const PRODUCTS = [
-  {id:"regatta", name:"Regatta", desc:"Painterly sailboats on Gulf teal.", price:185, kind:"adult", img:IMG.regatta},
-  {id:"coral",   name:"Coral Reef", desc:"Reef bloom in red, aqua & gold.", price:185, kind:"adult", img:IMG.coral},
-  {id:"aqua",    name:"Aqua", desc:"Sunlit water, caught mid-ripple.", price:185, kind:"adult", img:IMG.aqua},
-  {id:"candy",   name:"Candy Fish", desc:"A little shoal on soft pink.", price:185, kind:"adult", img:IMG.candy},
-  {id:"turtle",  name:"Sea Turtle", desc:"Turtles on highlighter yellow.", price:165, kind:"kids", img:IMG.turtle},
-  {id:"regattaK",name:"Regatta · Mini", desc:"The Regatta print, mini-sized.", price:165, kind:"kids", img:IMG.regatta},
+  {id:"regatta", name:"Regatta", desc:"Painterly sailboats on Gulf teal.", price:185, kind:"adult", img:IMG.regatta,
+    fit:"contain", position:"center", pad:"4%", scale:1.12, sheetRatio:"4/3"},
+  {id:"coral",   name:"Coral Reef", desc:"Reef bloom in red, aqua & gold.", price:185, kind:"adult", img:IMG.coral,
+    fit:"contain", position:"center", pad:"4%", scale:1.12, sheetRatio:"4/3"},
+  {id:"aqua",    name:"Aqua", desc:"Sunlit water, caught mid-ripple.", price:185, kind:"adult", img:IMG.aqua,
+    fit:"cover", position:"center 48%", scale:1.01},
+  {id:"candy",   name:"Candy Fish", desc:"A little shoal on soft pink.", price:185, kind:"adult", img:IMG.candy,
+    fit:"contain", position:"center", pad:"8%", rotate:"-90deg", scale:.78, sheetRatio:"4/3"},
+  {id:"turtle",  name:"Sea Turtle", desc:"Turtles on highlighter yellow.", price:165, kind:"kids", img:IMG.turtle,
+    fit:"cover", position:"center 43%", scale:1},
+  {id:"regattaK",name:"Regatta · Mini", desc:"The Regatta print, mini-sized.", price:165, kind:"kids", img:IMG.regatta,
+    fit:"contain", position:"center", pad:"4%", scale:1.12, sheetRatio:"4/3"},
 ];
+
+function photoStyle(p){
+  return `--fit:${p.fit||'cover'};--position:${p.position||'center'};--pad:${p.pad||'0'};--rotate:${p.rotate||'0deg'};--scale:${p.scale||1}`;
+}
 
 document.getElementById('waFoot').href = "https://wa.me/"+WHATSAPP;
 
@@ -422,7 +482,7 @@ function renderGrid(filter="all"){
     el.innerHTML = `
       <div class="card-img">
         <span class="tag ${p.kind==='kids'?'kids':''}">${p.kind==='kids'?'Kids':'Adults'}</span>
-        <img src="${p.img}" alt="${p.name} swim shorts" loading="lazy" decoding="async">
+        <img class="product-photo" style="${photoStyle(p)}" src="${p.img}" alt="${p.name} swim shorts" loading="lazy" decoding="async">
       </div>
       <div class="card-body">
         <h3>${p.name}</h3>
@@ -459,7 +519,7 @@ function openProduct(p){
   sel={product:p,size:null,qty:1};
   const sizes = p.kind==='kids'?KIDS_SIZES:ADULT_SIZES;
   psBody.innerHTML = `
-    <div class="ps-img"><img src="${p.img}" alt="${p.name}"></div>
+    <div class="ps-img" style="--sheet-ratio:${p.sheetRatio||'4/4.4'}"><img class="product-photo" style="${photoStyle(p)}" src="${p.img}" alt="${p.name}"></div>
     <div class="eyebrow">${p.kind==='kids'?'Kids · 1 to 10 years':'Adults'}</div>
     <div class="ps-name">${p.name}</div>
     <div class="ps-desc">${p.desc}</div>
@@ -498,7 +558,8 @@ function addToCart(){
   const key=p.id+"|"+sel.size;
   const found=cart.find(i=>i.key===key);
   if(found) found.qty=Math.min(20,found.qty+sel.qty);
-  else cart.push({key,id:p.id,name:p.name,kind:p.kind,price:p.price,size:sel.size,qty:sel.qty,img:p.img});
+  else cart.push({key,id:p.id,name:p.name,kind:p.kind,price:p.price,size:sel.size,qty:sel.qty,img:p.img,
+    fit:p.fit,position:p.position,pad:p.pad,rotate:p.rotate,scale:p.scale});
   updateBadge();
   const h=document.getElementById('psHint'); h.style.color="var(--sea-deep)"; h.textContent="Added to your bag ✓";
   setTimeout(()=>{ closeSheet(psScrim,psSheet); }, 550);
@@ -517,7 +578,7 @@ function renderCart(){
   }
   items.innerHTML=cart.map((i,idx)=>`
     <div class="li">
-      <img src="${i.img}" alt="${i.name}">
+      <img class="product-photo" style="${photoStyle(i)}" src="${i.img}" alt="${i.name}">
       <div class="li-main">
         <h4>${i.name}</h4>
         <div class="meta">${i.kind==='kids'?'Kids':'Adults'} · Size ${i.size}</div>
@@ -605,16 +666,19 @@ function orderPayload(f){
           subtotal:t.subtotal, delivery:t.delivery, total:t.total,
           placed_at:new Date().toISOString()};
 }
-function logOrder(payload){
-  if(!ORDER_LOG_URL) return Promise.resolve();
-  return fetch(ORDER_LOG_URL,{method:"POST",mode:"no-cors",
-    headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)}).catch(()=>{});
+async function notifyPaidOrder(paymentIntent,payload){
+  try{
+    const response=await fetch('/api/complete-order',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({payment_intent:paymentIntent,order:payload})});
+    return response.ok;
+  }catch(_){
+    return false;
+  }
 }
 async function submitOrder(mode){
   const f=readForm(); if(!f) return;
   const payload=orderPayload(f);
   if(mode==="whatsapp"){
-    logOrder(payload);
     sendWhatsApp(payload);
     return;
   }
@@ -678,8 +742,10 @@ async function handleReturn(){
       if(payment.paid){
         try{
           const pending=JSON.parse(sessionStorage.getItem('tropicaPendingOrder')||'null');
-          if(pending) await logOrder({...pending,payment_intent:paymentId,payment_status:'completed'});
-          sessionStorage.removeItem('tropicaPendingOrder');
+          if(pending){
+            const notified=await notifyPaidOrder(paymentId,pending);
+            if(notified) sessionStorage.removeItem('tropicaPendingOrder');
+          }
         }catch(_){}
         showPaymentResult('Order confirmed',"Thank you — your payment went through. We'll message you on WhatsApp to arrange delivery.",true);
       }else if(payment.status==='pending'||payment.status==='requires_user_action'){
