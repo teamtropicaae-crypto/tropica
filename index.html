@@ -190,8 +190,18 @@ footer .palm svg{width:100%;height:100%}
   background:var(--shell);color:var(--ink);font-size:18px;cursor:pointer;display:grid;place-items:center}
 
 /* product sheet */
-.ps-img{border-radius:16px;overflow:hidden;aspect-ratio:var(--sheet-ratio,4/4.4);margin:6px 0 16px;
+.ps-gallery{margin:6px 0 16px}
+.ps-img{border-radius:16px;overflow:hidden;aspect-ratio:4/5;
   background:radial-gradient(circle at 50% 35%,#fff 0,#f3f0e9 55%,#e7e3db 100%)}
+.ps-thumbs{display:grid;grid-auto-flow:column;grid-auto-columns:72px;gap:9px;overflow-x:auto;
+  padding:10px 1px 2px;scrollbar-width:none}
+.ps-thumbs::-webkit-scrollbar{display:none}
+.ps-thumb{aspect-ratio:3/4;border:2px solid transparent;border-radius:10px;overflow:hidden;padding:0;
+  background:#fff;cursor:pointer;transition:border-color .15s,transform .15s}
+.ps-thumb[aria-pressed="true"]{border-color:var(--ink)}
+.ps-thumb:active{transform:scale(.96)}
+.ps-thumb img{width:100%;height:100%;box-sizing:border-box;object-fit:var(--fit,cover);
+  object-position:var(--position,center);padding:var(--pad,0);transform:rotate(var(--rotate,0deg)) scale(var(--scale,1))}
 .ps-name{font-family:"Fraunces",serif;font-weight:500;font-size:26px}
 .ps-desc{color:rgba(15,42,77,.65);font-size:14px;margin:4px 0 2px}
 .ps-price{font-weight:800;font-size:20px;margin:12px 0 4px}
@@ -434,8 +444,20 @@ function syncHeader(){ siteHeader.classList.toggle('scrolled',window.scrollY>36)
 syncHeader();
 addEventListener('scroll',syncHeader,{passive:true});
 
-const IMG = {regatta:"assets/regatta-white.jpg",coral:"assets/coral-white.jpg",aqua:"assets/aqua.jpg",
-  candy:"assets/candy-white.jpg",turtle:"assets/turtle.jpg"};
+const IMG = {
+  regatta:"assets/regatta-front-lifestyle.jpg",
+  regattaBack:"assets/regatta-back-lifestyle.jpg",
+  regattaStudio:"assets/regatta-white.jpg",
+  coral:"assets/coral-front-lifestyle.jpg",
+  coralBack:"assets/coral-back-lifestyle.jpg",
+  coralWalk:"assets/coral-walk-lifestyle.jpg",
+  coralStudio:"assets/coral-white.jpg",
+  candy:"assets/candy-front-lifestyle.jpg",
+  candyBack:"assets/candy-back-lifestyle.jpg",
+  candyStudio:"assets/candy-white.jpg",
+  aqua:"assets/aqua.jpg",
+  turtle:"assets/turtle.jpg"
+};
 
 /* ============ CONFIG ============ */
 const WHATSAPP     = "971566849595";  // WhatsApp number, intl format, no +
@@ -454,21 +476,41 @@ const KIDS_SIZES  = ["1–2y","3–4y","5–6y","7–8y","9–10y"];
 
 const PRODUCTS = [
   {id:"regatta", name:"Regatta", desc:"Painterly sailboats on Gulf teal.", price:185, kind:"adult", img:IMG.regatta,
-    fit:"contain", position:"center", pad:"4%", scale:1.12, sheetRatio:"4/3"},
+    fit:"cover", position:"center 58%", gallery:[
+      {img:IMG.regatta, alt:"Regatta swim shorts front view"},
+      {img:IMG.regattaBack, alt:"Regatta swim shorts back view"},
+      {img:IMG.regattaStudio, alt:"Regatta swim shorts studio view", fit:"contain", pad:"4%", scale:1.05}
+    ]},
   {id:"coral",   name:"Coral Reef", desc:"Reef bloom in red, aqua & gold.", price:185, kind:"adult", img:IMG.coral,
-    fit:"contain", position:"center", pad:"4%", scale:1.12, sheetRatio:"4/3"},
+    fit:"cover", position:"center", gallery:[
+      {img:IMG.coral, alt:"Coral Reef swim shorts front view"},
+      {img:IMG.coralBack, alt:"Coral Reef swim shorts back view"},
+      {img:IMG.coralWalk, alt:"Coral Reef swim shorts beach view"},
+      {img:IMG.coralStudio, alt:"Coral Reef swim shorts studio view", fit:"contain", pad:"4%", scale:1.05}
+    ]},
   {id:"aqua",    name:"Aqua", desc:"Sunlit water, caught mid-ripple.", price:185, kind:"adult", img:IMG.aqua,
     fit:"cover", position:"center 48%", scale:1.01},
   {id:"candy",   name:"Candy Fish", desc:"A little shoal on soft pink.", price:185, kind:"adult", img:IMG.candy,
-    fit:"contain", position:"center", pad:"8%", rotate:"-90deg", scale:.78, sheetRatio:"4/3"},
+    fit:"cover", position:"center 58%", gallery:[
+      {img:IMG.candy, alt:"Candy Fish swim shorts front view"},
+      {img:IMG.candyBack, alt:"Candy Fish swim shorts back view", position:"center 54%"},
+      {img:IMG.candyStudio, alt:"Candy Fish swim shorts studio view", fit:"contain", pad:"8%", rotate:"-90deg", scale:.78}
+    ]},
   {id:"turtle",  name:"Sea Turtle", desc:"Turtles on highlighter yellow.", price:165, kind:"kids", img:IMG.turtle,
     fit:"cover", position:"center 43%", scale:1},
-  {id:"regattaK",name:"Regatta · Mini", desc:"The Regatta print, mini-sized.", price:165, kind:"kids", img:IMG.regatta,
+  {id:"regattaK",name:"Regatta · Mini", desc:"The Regatta print, mini-sized.", price:165, kind:"kids", img:IMG.regattaStudio,
     fit:"contain", position:"center", pad:"4%", scale:1.12, sheetRatio:"4/3"},
 ];
 
 function photoStyle(p){
   return `--fit:${p.fit||'cover'};--position:${p.position||'center'};--pad:${p.pad||'0'};--rotate:${p.rotate||'0deg'};--scale:${p.scale||1}`;
+}
+
+function galleryFor(p){
+  return p.gallery?.length ? p.gallery : [{
+    img:p.img, alt:`${p.name} swim shorts`, fit:p.fit, position:p.position,
+    pad:p.pad, rotate:p.rotate, scale:p.scale
+  }];
 }
 
 document.getElementById('waFoot').href = "https://wa.me/"+WHATSAPP;
@@ -519,8 +561,17 @@ let sel={product:null,size:null,qty:1};
 function openProduct(p){
   sel={product:p,size:null,qty:1};
   const sizes = p.kind==='kids'?KIDS_SIZES:ADULT_SIZES;
+  const gallery = galleryFor(p);
+  const firstPhoto = gallery[0];
   psBody.innerHTML = `
-    <div class="ps-img" style="--sheet-ratio:${p.sheetRatio||'4/4.4'}"><img class="product-photo" style="${photoStyle(p)}" src="${p.img}" alt="${p.name}"></div>
+    <div class="ps-gallery">
+      <div class="ps-img"><img class="product-photo" id="psMainImage" style="${photoStyle(firstPhoto)}" src="${firstPhoto.img}" alt="${firstPhoto.alt||p.name}"></div>
+      ${gallery.length>1?`<div class="ps-thumbs" aria-label="${p.name} product photos">
+        ${gallery.map((photo,index)=>`<button class="ps-thumb" type="button" data-photo-index="${index}" aria-label="View ${photo.alt||`${p.name} photo ${index+1}`}" aria-pressed="${index===0}">
+          <img style="${photoStyle(photo)}" src="${photo.img}" alt="" loading="lazy" decoding="async">
+        </button>`).join('')}
+      </div>`:''}
+    </div>
     <div class="eyebrow">${p.kind==='kids'?'Kids · 1 to 10 years':'Adults'}</div>
     <div class="ps-name">${p.name}</div>
     <div class="ps-desc">${p.desc}</div>
@@ -538,6 +589,16 @@ function openProduct(p){
       <button class="add" id="addBtn" disabled>Select a size</button>
     </div>
     <div class="hint" id="psHint"></div>`;
+  psBody.querySelectorAll('.ps-thumb').forEach(button=>{
+    button.addEventListener('click',()=>{
+      const photo=gallery[Number(button.dataset.photoIndex)];
+      const main=document.getElementById('psMainImage');
+      main.src=photo.img;
+      main.alt=photo.alt||p.name;
+      main.setAttribute('style',photoStyle(photo));
+      psBody.querySelectorAll('.ps-thumb').forEach(item=>item.setAttribute('aria-pressed',item===button));
+    });
+  });
   psBody.querySelectorAll('.size').forEach(b=>{
     b.addEventListener('click',()=>{
       psBody.querySelectorAll('.size').forEach(x=>x.setAttribute('aria-pressed', x===b));
